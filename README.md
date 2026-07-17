@@ -8,6 +8,7 @@ Task Manager API is a production-oriented FastAPI application for creating, upda
 - Frontend: HTML, CSS, Vanilla JavaScript, Bootstrap
 - Deployment: Docker, Docker Compose, GitHub Actions, Amazon ECR, Amazon ECS Fargate, Application Load Balancer
 - Architecture: Clean, modular layout with API, service, model, schema, and database layers
+- Infrastructure as Code: Terraform for AWS provisioning
 
 ## Architecture Diagram
 
@@ -82,6 +83,8 @@ task-manager/
 │   └── config.py
 ├── tests/
 ├── deploy/
+├── infra/
+│   └── terraform/
 ├── .github/workflows/
 ├── Dockerfile
 ├── docker-compose.yml
@@ -189,25 +192,52 @@ PostgreSQL
 - PostgreSQL database accessible from ECS tasks
 - AWS SSM parameters for secrets
 
-### ECS Task Definition
+## Terraform Setup
 
-The example task definition is in `deploy/ecs-task-definition.json`.
+The AWS infrastructure is provisioned from `infra/terraform`.
 
-Update these values before deployment if needed:
+### What Terraform Creates
 
-- `executionRoleArn`
-- `taskRoleArn`
-- `awslogs-region`
-- ECR image URI
-- SSM parameter ARNs
+- VPC, subnets, routes, NAT gateway
+- Security groups
+- Application Load Balancer
+- ECR repository
+- ECS cluster, task definition, and service
+- RDS PostgreSQL instance
+- CloudWatch log group
+- SSM parameters
+- GitHub OIDC role for deployment
 
-### Suggested Environment Variables in AWS
+### Quick Start
 
-Store these in AWS Systems Manager Parameter Store:
+```bash
+cd infra/terraform
+cp terraform.tfvars.example terraform.tfvars
+terraform init
+terraform plan -var-file=terraform.tfvars
+terraform apply -var-file=terraform.tfvars
+```
 
-- `DATABASE_URL`
-- `SECRET_KEY`
-- `ALLOWED_ORIGINS`
+### Terraform Outputs
+
+After apply, Terraform prints:
+
+- ALB DNS name and URL
+- ECR repository URL
+- ECS cluster and service names
+- GitHub Actions role ARN
+- Database endpoint
+- SSM parameter names
+
+### GitHub Actions Integration
+
+After Terraform finishes, add these values to your GitHub repository secrets:
+
+- `AWS_REGION`
+- `AWS_ROLE_TO_ASSUME` from Terraform output `github_actions_role_arn`
+- `ECR_REPOSITORY` as the repository name, for example `task-manager-api`
+- `ECS_CLUSTER` from Terraform output `ecs_cluster_name`
+- `ECS_SERVICE` from Terraform output `ecs_service_name`
 
 ### Load Balancer Health Check
 
@@ -231,7 +261,6 @@ The application writes structured logs to stdout, which is compatible with Docke
 - Add authentication and authorization
 - Add pagination and filtering
 - Add audit fields such as `updated_at` and `deleted_at`
-- Add Terraform or CloudFormation for full AWS infrastructure provisioning
 - Add observability with OpenTelemetry
 - Add unit tests for the service layer
 
