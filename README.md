@@ -150,7 +150,7 @@ Pipeline stages:
 ### Required GitHub Secrets
 
 - `AWS_REGION`
-- `AWS_ROLE_TO_ASSUME`
+- `AWS_ROLE_ARN`
 - `ECR_REPOSITORY`
 - `ECS_CLUSTER`
 - `ECS_SERVICE`
@@ -234,7 +234,7 @@ After apply, Terraform prints:
 After Terraform finishes, add these values to your GitHub repository secrets:
 
 - `AWS_REGION`
-- `AWS_ROLE_TO_ASSUME` from Terraform output `github_actions_role_arn`
+- `AWS_ROLE_ARN` from Terraform output `github_actions_role_arn`
 - `ECR_REPOSITORY` as the repository name, for example `task-manager-api`
 - `ECS_CLUSTER` from Terraform output `ecs_cluster_name`
 - `ECS_SERVICE` from Terraform output `ecs_service_name`
