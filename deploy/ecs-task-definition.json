@@ -1,0 +1,62 @@
+{
+  "family": "task-manager-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::810448722017:role/task-manager-ecs-execution-role",
+  "taskRoleArn": "arn:aws:iam::810448722017:role/task-manager-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "task-manager-api",
+      "image": "810448722017.dkr.ecr.us-east-1.amazonaws.com/task-manager-api:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "APP_NAME", "value": "Task Manager API" },
+        { "name": "DEBUG", "value": "false" },
+        { "name": "LOG_LEVEL", "value": "INFO" },
+        { "name": "HOST", "value": "0.0.0.0" },
+        { "name": "PORT", "value": "8000" }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:ssm:us-east-1:810448722017:parameter/task-manager/DATABASE_URL"
+        },
+        {
+          "name": "SECRET_KEY",
+          "valueFrom": "arn:aws:ssm:us-east-1:810448722017:parameter/task-manager/SECRET_KEY"
+        },
+        {
+          "name": "ALLOWED_ORIGINS",
+          "valueFrom": "arn:aws:ssm:us-east-1:810448722017:parameter/task-manager/ALLOWED_ORIGINS"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/task-manager-api",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health').read()\""
+        ],
+        "interval": 30,
+        "timeout": 10,
+        "retries": 3,
+        "startPeriod": 20
+      }
+    }
+  ]
+}
