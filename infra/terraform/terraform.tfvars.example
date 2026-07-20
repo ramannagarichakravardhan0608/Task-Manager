@@ -1,4 +1,4 @@
-aws_region    = "us-east-1"
+aws_region    = "ap-south-2"
 project_name  = "task-manager"
 app_name      = "Task Manager API"
 github_owner  = "ramannagarichakravardhan0608"
@@ -7,4 +7,3 @@ github_branch = "main"
 
 # Leave empty for same-origin deployment through the ALB.
 allowed_origins = ""
-

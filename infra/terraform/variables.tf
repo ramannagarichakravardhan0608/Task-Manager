@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region to deploy into."
   type        = string
-  default     = "us-east-1"
+  default     = "ap-south-2"
 }
 
 variable "project_name" {
@@ -111,4 +111,3 @@ variable "enable_deletion_protection" {
   type        = bool
   default     = false
 }
-
